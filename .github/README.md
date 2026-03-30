@@ -1,215 +1,143 @@
 # ASDD — Agent Spec-Driven Development
 
-**ASDD** (Agent Spec Software Development) es un framework de desarrollo asistido por IA que organiza el trabajo de software en diversas fases orquestadas por agentes especializados.
+**ASDD** (Agent Spec Software Development) is an AI-assisted development framework that orchestrates software tasks into various phases controlled by specialized agents, with a focus on k6 performance testing in this repository.
 
 ```
-Requerimiento → Spec API → QA → Doc (opcional)
+Requirement → API Spec → QA & Analysis → k6 Automation → Doc (optional)
 ```
 
-> Esta guía cubre el uso con **GitHub Copilot Chat** en VS Code.
+> This guide covers usage with **GitHub Copilot Chat** in VS Code.
 
 ---
 
-## Requisitos
+## Requirements
 
-| Requisito | Detalle |
+| Requirement | Detail |
 |---|---|
-| VS Code | Cualquier versión reciente |
-| GitHub Copilot Chat | Extensión instalada y activa |
-| Setting habilitado | `github.copilot.chat.codeGeneration.useInstructionFiles: true` |
+| VS Code | Any recent version |
+| GitHub Copilot Chat | Extension installed and active |
+| Setting enabled | `github.copilot.chat.codeGeneration.useInstructionFiles: true` |
 
-El archivo `.vscode/settings.json` ya configura el auto-descubrimiento de agentes, skills e instructions. Si no existe, créalo con las rutas correspondientes a `.github/`.
+The `.vscode/settings.json` file configures auto-discovery. If missing, create it pointing to `.github/`.
 
 ---
 
-## Onboarding — nuevo proyecto
+## Onboarding
 
-Al copiar `.github/` y `docs/` a un proyecto nuevo, completa estos archivos **en orden** antes de usar cualquier agente:
+When scaffolding a new repository, fill out these files **in order** before using agents:
 
-| # | Archivo | Qué escribir |
+| # | File | What to write |
 |---|---------|-------------|
-| 1 | `README.md` (raíz del proyecto) | Stack de performance test en k6 y diseño API |
-| 2 | `copilot-instructions.md` | Términos canónicos del negocio (glosario) |
-| 3 | `copilot-instructions.md` | Criterios DoR y DoD del equipo |
-
-Una vez completados, los agentes tienen todo el contexto para operar de forma autónoma.
-
-**No modificar**: `agents/`, `skills/`, `instructions/`, `.github/docs/lineamientos/`, `copilot-instructions.md`, `AGENTS.md`
+| 1 | `README.md` (root) | Describe target workloads and API scope |
+| 2 | `copilot-instructions.md` | Business terms, definitions, parameters |
+| 3 | `copilot-instructions.md` | DoR and DoD criteria for the team |
 
 ---
 
-## El flujo ASDD paso a paso
+## The ASDD Flow
 
-### Paso 1 — Spec (obligatorio, siempre primero)
+### Step 1 — Spec
 
-Genera la especificación técnica antes de escribir código:
+Always generate the technical specification first:
 
 ```
-@Spec Generator genera la spec para: [tu requerimiento]
+@Spec Generator generate the spec for: [your requirement]
 ```
 ```
-/generate-spec <nombre-feature>
+/generate-spec <feature-name>
 ```
 
-El agente valida el requerimiento y genera `specs/<feature>.spec.md` con estado `DRAFT`.
-Revisa y aprueba la spec (cambia a `APPROVED`) antes de continuar.
+The agent validates the requirement from `.github/requirements/` and outputs `specs/<feature>.spec.md` with a `DRAFT` status. Review and change to `APPROVED` before continuing.
 
 ---
 
-### Paso 2 — QA
+### Step 2 — QA & Automation
 
-Con la spec `APPROVED`, ejecuta la estrategia QA:
+With an `APPROVED` spec, trigger the automation suite:
 
 ```
-@QA Agent ejecuta QA para specs/<feature>.spec.md
+@QA Agent execute QA and performance generation for specs/<feature>.spec.md
 ```
 
-El agente genera: casos Gherkin y matriz de riesgos.
+The agent will output BDD behaviors, risk matrices, and ultimately use `/implement-k6-assets` and `/implement-k6-script` to write executable load tests.
 
 ---
 
----
+### Step 3 — Documentation *(Optional)*
 
----
-
-### Paso 3 — Documentación *(opcional)*
-
-Al cerrar el feature:
+When the scripts are ready and verified:
 
 ```
-@Documentation Agent documenta el feature specs/<feature>.spec.md
+@Documentation Agent document the feature specs/<feature>.spec.md
 ```
 
 ---
 
-### Flujo completo con Orchestrator
+### Full Orchestration
 
 ```
-@Orchestrator ejecuta el flujo completo para: [tu requerimiento]
+@Orchestrator run the complete flow for: [your requirement]
 ```
 ```
-/asdd-orchestrate <nombre-feature>
+/asdd-orchestrate <feature-name>
 ```
 
 ---
 
-## Agentes disponibles (`@nombre` en Copilot Chat)
+## Available Agents (`@name` in Copilot Chat)
 
-| Agente | Fase | Cuándo usarlo |
+| Agent | Phase | Purpose |
 |---|---|---|
-| `@Orchestrator` | Entry point | Coordinar el flujo completo (`/asdd-orchestrate status` para ver estado) |
-| `@Spec Generator` | Fase 1 | Validar un requerimiento y generar su spec técnica |
-| `@QA Agent` | Fase 2 | Gherkin, riesgos y análisis BDD |
-| `@Documentation Agent` | Fase 3 | README, API docs y ADRs |
+| `@Orchestrator` | Entry | Coordinate the full flow (`/asdd-orchestrate status`) |
+| `@Spec Generator` | Phase 1 | Validate requirement and generate tech spec |
+| `@QA Agent` | Phase 2 | Gherkin, risks, and k6 automation assets |
+| `@Documentation Agent` | Phase 3 | Update root README and docs |
 
 ---
 
-## Skills disponibles (`/comando` en Copilot Chat)
+## Path-based Instructions
 
-| Comando | Agente | Qué hace |
-|---|---|---|
-| `/asdd-orchestrate` | Orchestrator | Orquesta el flujo completo o muestra estado actual |
-| `/generate-spec` | Spec Generator | Genera spec técnica con validación INVEST/IEEE 830 |
-| `/gherkin-case-generator` | QA Agent | Flujos críticos + casos Given-When-Then + datos de prueba |
-| `/risk-identifier` | QA Agent | Matriz de riesgos ASD (Alto/Medio/Bajo) |
-| `/automation-flow-proposer` | QA Agent | Propone flujos a automatizar con estimación de ROI |
+Injected automatically by Copilot when active file matches:
 
----
-
-## Prompts disponibles (`/nombre` en Copilot Chat)
-
-Alternativa rápida a invocar agentes directamente:
-
-| Comando | Cuándo usarlo |
-|---|---|
-| `/generate-spec` | Crear una nueva spec desde un requerimiento |
-| `/qa-task` | Ejecutar el flujo QA (Gherkin + riesgos) |
-| `/doc-task` | Generar documentación técnica del feature |
-| `/full-flow` | Orquestar todas las fases de principio a fin |
-
----
-
-## Instructions automáticas (sin intervención manual)
-
-Inyectadas automáticamente por Copilot cuando el archivo activo coincide:
-
-> Si el proyecto usa otro stack, ajusta los patrones `applyTo:` de cada archivo.
-
----
-
-## Instructions automáticas (sin intervención manual)
-
-Inyectadas automáticamente por Copilot cuando el archivo activo coincide:
-
-| Archivo activo | Instructions aplicadas |
+| Active file | instruction |
 |---|---|
 | `k6/**/*.js` | `instructions/k6.instructions.md` |
 | `k6/**/*.json` | `instructions/k6.instructions.md` |
 
-> Si el framework asume una convención de nombramiento diferente, ajusta los patrones `applyTo:` de cada archivo de `.github/instructions`.
-
 ---
 
-## Lineamientos de referencia
+## Guidelines Reference
 
-Cargados automáticamente por los agentes:
+Loaded by agents as needed:
 
-| Documento | Contenido |
+| Document | Content |
 |---|---|
-| `.github/docs/lineamientos/dev-guidelines.md` | Clean Code, SOLID, API REST, Seguridad, Observabilidad |
-| `.github/docs/lineamientos/qa-guidelines.md` | Estrategia QA, Gherkin, Riesgos, Automatización, Performance |
-| `.github/docs/lineamientos/guidelines.md` | Referencia rápida de estándares: código, tests, API, Git |
+| `.github/docs/lineamientos/dev-guidelines.md` | Clean Code, SOLID, Performance conventions |
+| `.github/docs/lineamientos/qa-guidelines.md` | QA strategy, Risks, Performance testing |
+| `.github/docs/lineamientos/guidelines.md` | Quick reference standards |
 
 ---
 
-## Estructura de carpetas
+## Folder Structure
 
 ```
 Project Root/
 │
-├── docs/output/                     ← artefactos generados por los agentes
-│   ├── qa/                          ← Gherkin, riesgos, performance
-│   ├── api/                         ← documentación de API
-│   └── adr/                         ← Architecture Decision Records
+├── docs/output/                     ← agent-generated artifacts
+│   ├── qa/                          ← Gherkin, risks, test strategies
+│   └── performance/                 ← Execution reports
 │
-└── .github/                         ← framework Copilot (auto-contenido para compartir)
-    ├── README.md                    ← este archivo
-    ├── AGENTS.md                    ← reglas críticas para todos los agentes
-    ├── copilot-instructions.md      ← siempre activo en Copilot Chat
-    │
-    ├── agents/                      ← agentes (@nombre en Copilot Chat)
-    │   ├── orchestrator.agent.md
-    │   ├── spec-generator.agent.md
-    │   ├── qa.agent.md
-    │   └── documentation.agent.md
-    │
-    ├── skills/                      ← skills (/comando en Copilot Chat)
-    │   ├── asdd-orchestrate/
-    │   ├── generate-spec/
-    │   ├── gherkin-case-generator/
-    │   ├── risk-identifier/
-    │   ├── automation-flow-proposer/
-    │
-    ├── docs/lineamientos/           ← guidelines del framework (incluidos al compartir)
-    │   ├── dev-guidelines.md
-    │   └── qa-guidelines.md
-    │
-    ├── prompts/                     ← 8 prompts (/nombre en Copilot Chat)
-    │
-    ├── instructions/                ← aplicadas automáticamente por contexto de archivo
-    │
-    ├── requirements/                ← requerimientos de negocio (input del pipeline)
-    │   └── <feature>.md
-    │
-    └── specs/                       ← specs técnicas (fuente de verdad)
-        └── <feature>.spec.md        ← DRAFT → APPROVED → IN_PROGRESS → IMPLEMENTED
+├── k6/                              ← Execution logic
+│   ├── config/                      ← options, env, thresholds
+│   ├── lib/                         ← http clients, helpers, checks
+│   ├── data/                        ← scenario test data
+│   └── scenarios/                   ← actual k6 load scripts
+│
+└── .github/                         ← Copilot framework (self-contained)
 ```
 
----
-
-## Reglas de Oro
-
-1. **No código sin spec aprobada** — siempre debe existir `specs/<feature>.spec.md` con estado `APPROVED`.
-2. **No código no autorizado** — los agentes no generan ni modifican código sin instrucción explícita.
-3. **No suposiciones** — si el requerimiento es ambiguo, el agente pregunta antes de actuar.
-4. **Transparencia** — el agente explica qué va a hacer antes de hacerlo.
+## Golden Rules
+1. **No code without approved spec** — `specs/<feature>.spec.md` must exist and be `APPROVED`.
+2. **No unauthorized code** — agents must follow explicit commands.
+3. **No assumptions** — ask before acting if requirements lack metrics or RPS targets.
+4. **Transparency** — explain logic and thresholds before writing `k6` code.

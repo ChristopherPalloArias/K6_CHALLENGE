@@ -1,23 +1,20 @@
 ---
-description: 'Ejecuta el Documentation Agent para generar documentación técnica completa del feature implementado (README, API docs, ADRs, onboarding).'
+description: 'Executes the Documentation Agent to generate full technical documentation for the implemented load test feature.'
 agent: Documentation Agent
 ---
 
-Ejecuta el Documentation Agent (MARCO DOC) para generar la documentación técnica del feature.
+Run the Documentation Agent to generate technical documentation for the feature.
 
-**Feature**: ${input:featureName:nombre del feature en kebab-case}
+**Feature**: ${input:featureName:feature name in kebab-case}
 
-**Instrucciones para @Documentation Agent:**
+**Instructions for @Documentation Agent:**
 
-1. Lee `.github/docs/lineamientos/dev-guidelines.md`
-2. Lee la spec aprobada en `.github/specs/${input:featureName}.spec.md`
-3. Revisa los scripts implementados en `k6/`
-4. Genera los siguientes entregables:
-   - Actualiza `README.md` con los cambios del feature
-   - Genera documentación de API: `docs/output/api/api-reference.md`
-   - Registra ADRs en `docs/output/adr/architecture_decision_records.md` (si aplica)
-   - Genera reporte preliminar de performance en `docs/output/performance/report/`
-   - Actualiza guía de onboarding: `docs/output/onboarding-guide.md` (si aplica)
-5. Presenta reporte consolidado de documentación generada
+1. Read `.github/docs/lineamientos/dev-guidelines.md`
+2. Read the approved spec in `.github/specs/${input:featureName}.spec.md`
+3. Review the scripts implemented in `k6/`
+4. Generate the following deliverables:
+   - Update `README.md` with the feature changes
+   - Generate preliminary performance report in `docs/output/performance/report/` (if applicable)
+5. Present a consolidated report of generated documentation.
 
-**Prerequisito:** Debe existir `.github/specs/${input:featureName}.spec.md` con estado APPROVED y código implementado. Si no, ejecutar `/generate-spec` y los marcos de implementación primero.
+**Prerequisite:** `.github/specs/${input:featureName}.spec.md` must exist with APPROVED status and scripts must be implemented.

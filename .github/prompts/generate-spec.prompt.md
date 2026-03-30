@@ -1,32 +1,18 @@
 ---
-name: generate-spec
-description: Genera una especificación técnica ASDD para un nuevo feature. Usa este comando con el nombre e descripción del feature.
-argument-hint: "<nombre-feature>: <descripción del requerimiento>"
+description: 'Executes the Spec Generator Agent to translate a business requirement into a technical load test specification.'
 agent: Spec Generator
-tools:
-  - edit/createFile
-  - read/readFile
-  - search/listDirectory
-  - search
 ---
 
-Genera una especificación técnica completa en `.github/specs/` para el siguiente requerimiento.
+Run the Spec Generator Agent to create the technical specification for the requirement.
 
-**Feature**: ${input:featureName:nombre del feature en kebab-case}
-**Requerimiento**: ${input:requirement:descripción del requerimiento — o "ver requirements" para cargar desde .github/requirements/}
+**Feature**: ${input:featureName:feature name in kebab-case}
 
-## Pasos a seguir:
+**Prerequisite:** A requirement must exist in `.github/requirements/${input:featureName}.md` (or provide the text via chat).
 
-1. **Si el requerimiento no se proporcionó**, busca en `.github/requirements/${input:featureName}.md`. Si existe, úsalo como fuente.
-2. Lee el stack: `.github/instructions/k6.instructions.md`.
-3. Explora el código existente para identificar patrones, modelos y rutas relacionadas.
-4. Genera la spec usando la plantilla en `.github/skills/generate-spec/spec-template.md`.
-5. Guarda el archivo como `.github/specs/${input:featureName}.spec.md` con estado `DRAFT`.
-6. Confirma la creación con un resumen de la spec al usuario.
+**Instructions for @Spec Generator:**
 
-## La spec debe cubrir:
-- Historias de usuario con criterios de aceptación en Gherkin
-- Modelos de datos (Pydantic + MongoDB)
-- Endpoints de API con request/response y errores
-- Diseño de test de Performance (Thresholds, Options, Data)
-- Plan de pruebas (tasks de config, data, scripts y ejecución)
+1. Read `.github/docs/lineamientos/dev-guidelines.md`.
+2. Read the tech stack: `.github/instructions/k6.instructions.md`.
+3. Read the domain dictionary: `.github/copilot-instructions.md`.
+4. Generate the spec with mandatory YAML frontmatter.
+5. Save in `.github/specs/${input:featureName}.spec.md`.

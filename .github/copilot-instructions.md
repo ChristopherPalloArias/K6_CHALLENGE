@@ -1,116 +1,78 @@
 # Copilot Instructions
 
-## ASDD Workflow (Agent Spec Software Development)
+## ASDD Workflow (Agent Spec-Driven Development)
 
-Este repositorio sigue el flujo **ASDD**: toda funcionalidad nueva se ejecuta en cuatro fases orquestadas por agentes especializados.
+This repository follows the **ASDD** flow: all functionality is executed across distinct phases orchestrated by specialized agents.
 
 ```
-[Orchestrator] → [Spec Generator] → [QA] → [Doc]
+[Orchestrator] → [Spec Generator] → [QA & Performance] → [Doc]
 ```
 
-### Fases del flujo ASDD
-1. **Spec**: El agente `spec-generator` genera la spec en `.github/specs/<feature>.spec.md`.
-2. **QA**: `qa-agent` genera estrategia, Gherkin, riesgos y automatización.
-3. **Doc (opcional)**: `documentation-agent` genera README updates, API docs y ADRs.
+### Flow Phases
+1. **Spec**: The `spec-generator` agent parses requirements into `.github/specs/<feature>.spec.md`.
+2. **QA & Script**: `qa-agent` plans the test strategy, maps risks, and executes `/implement-k6-assets` and `/implement-k6-script` to prepare automation tests.
+3. **Doc (Optional)**: `documentation-agent` updates the primary technical `.md` artifacts.
 
-### Skills disponibles (slash commands):
-- `/asdd-orchestrate` — orquesta el flujo completo ASDD o consulta estado
-- `/generate-spec` — genera spec técnica en `.github/specs/`
-- `/gherkin-case-generator` — casos Given-When-Then + datos de prueba
-- `/risk-identifier` — clasificación de riesgos ASD (Alto/Medio/Bajo)
-- `/automation-flow-proposer` — propuesta de automatización con ROI
-- `/performance-analyzer` — planificación de pruebas de performance
-- `/generate-project-readme` — genera o actualiza el README.md principal del framework k6 basado en la implementación
+### Available Skills (slash commands):
+- `/asdd-orchestrate` — Executes full ASDD flow and tracks state.
+- `/generate-spec` — Generates a technical spec under `.github/specs/`.
+- `/gherkin-case-generator` — Generates Given-When-Then + load scenarios.
+- `/risk-identifier` — Classifies application risks.
+- `/automation-flow-proposer` — Proposes automation workflows and ROI.
+- `/performance-analyzer` — Generates k6 testing SLA analysis matrices.
+- `/generate-project-readme` — Updates the project README framework documentation.
+- `/implement-k6-assets` — Generates thresholds/options/data under `k6/`.
+- `/implement-k6-script` — Generates final runner code under `k6/scenarios/`.
 
-### Requerimientos y Specs
-- Los requerimientos de negocio viven en `.github/requirements/`. Son la entrada al pipeline ASDD.
-- Las specs técnicas viven en `.github/specs/`. Cada spec es la fuente de verdad para implementar.
-- Antes de implementar cualquier desarrollo, debe existir una spec aprobada en `.github/specs/`.
-- Flujo: `requirements/<feature>.md` → `/generate-spec` → `specs/<feature>.spec.md` (APPROVED)
+### Requirements and Specs
+- Business requirements live in `.github/requirements/`. These initiate the pipeline.
+- Technical specifications live in `.github/specs/`. Each spec is a single source of truth for its implementation iteration.
+- A requirement (`.md`) requires the `/generate-spec` process mapping its transition to `APPROVED` before ANY code is touched.
 
 ---
 
-## Mapa de Archivos ASDD
+## ASDD File Map
 
-### Agentes
-| Agente | Fase | Ruta |
+### Agents
+| Agent | Phase | Path |
 |---|---|---|
-| Orchestrator | Entry point | `.github/agents/orchestrator.agent.md` |
-| Spec Generator | Fase 1 | `.github/agents/spec-generator.agent.md` |
-| QA Agent | Fase 2 | `.github/agents/qa.agent.md` |
-| Documentation Agent | Fase 3 | `.github/agents/documentation.agent.md` |
+| Orchestrator | Entry | `.github/agents/orchestrator.agent.md` |
+| Spec Generator | Phase 1 | `.github/agents/spec-generator.agent.md` |
+| QA Agent | Phase 2 | `.github/agents/qa.agent.md` |
+| Documentation Agent | Phase 3 | `.github/agents/documentation.agent.md` |
 
-### Skills
-| Skill | Agente | Ruta |
+### Path-scoped Instructions
+| Scope | Path | Applies to |
 |---|---|---|
-| `/asdd-orchestrate` | Orchestrator | `.github/skills/asdd-orchestrate/SKILL.md` |
-| `/generate-spec` | Spec Generator | `.github/skills/generate-spec/SKILL.md` |
-| `/gherkin-case-generator` | QA Agent | `.github/skills/gherkin-case-generator/SKILL.md` |
-| `/risk-identifier` | QA Agent | `.github/skills/risk-identifier/SKILL.md` |
-| `/automation-flow-proposer` | QA Agent | `.github/skills/automation-flow-proposer/SKILL.md` |
-| `/performance-analyzer` | QA Agent | `.github/skills/performance-analyzer/SKILL.md` |
-| `/generate-project-readme` | Documentation Agent | `.github/skills/generate-project-readme/SKILL.md` |
+| k6 Performance Automation | `.github/instructions/k6.instructions.md` | `k6/**/*.js` · `k6/**/*.json` |
 
-### Instructions (path-scoped)
-| Scope | Ruta | Se aplica a |
-|---|---|---|
-| k6 Performance Automation | `.github/instructions/karate.instructions.md` | `k6/**/*.js` · `k6/**/*.json` |
-
-### Lineamientos y Contexto
-| Documento | Ruta |
+### Context and Guidelines
+| Document | Path |
 |---|---|
-| Lineamientos de Desarrollo | `.github/docs/lineamientos/dev-guidelines.md` |
-| Lineamientos QA | `.github/docs/lineamientos/qa-guidelines.md` |
+| Dev/Code Guidelines | `.github/docs/lineamientos/dev-guidelines.md` |
+| QA Guidelines | `.github/docs/lineamientos/qa-guidelines.md` |
 
-### Lineamientos generales para todos los agentes
-- **Reglas de Oro**: ver `.github/AGENTS.md` — rigen TODAS las interacciones.
-- **Specs activas**: `.github/specs/` — consultar siempre antes de implementar.
-
----
-
-## Reglas de Oro
-
-> Principio rector: todas las contribuciones de la IA deben ser seguras, transparentes, con propósito definido y alineadas con las instrucciones explícitas del usuario.
-
-### I. Integridad del Código y del Sistema
-- **No código no autorizado**: no escribir, generar ni sugerir código nuevo a menos que el usuario lo solicite explícitamente.
-- **No modificaciones no autorizadas**: no modificar, refactorizar ni eliminar código, archivos o estructuras existentes sin aprobación explícita.
-- **Preservar la lógica existente**: respetar los patrones arquitectónicos, el estilo de codificación y la lógica operativa existentes del proyecto.
-
-### II. Clarificación de Requisitos
-- **Clarificación obligatoria**: si la solicitud es ambigua, incompleta o poco clara, detenerse y solicitar clarificación antes de proceder.
-- **No realizar suposiciones**: basar todas las acciones estrictamente en información explícita provista por el usuario.
-
-### III. Transparencia Operativa
-- **Explicar antes de actuar**: antes de cualquier acción, explicar qué se hará y posibles implicaciones.
-- **Detención ante la incertidumbre**: si surge inseguridad o conflicto con estas reglas, detenerse y consultar al usuario.
-- **Acciones orientadas a un propósito**: cada acción debe ser directamente relevante para la solicitud explícita.
+### Global Agent Directives
+- **Golden Rules**: Enforced universally under `.github/AGENTS.md`. No modifications can violate them.
+- **Active specs**: Always reference `.github/specs/` before building scripts.
 
 ---
 
-## Diccionario de Dominio
+## Domain Dictionary
 
-Términos canónicos a usar en specs, código y mensajes:
+Canonical terms utilized by the repository during specs, scripts, or messages:
 
-| Término | Definición | Sinónimos rechazados |
+| Term | Concept | Rejected Synonyms |
 |---------|-----------|---------------------|
-| **Usuario** (`user`) | Persona autenticada mediante Firebase | Persona, cliente |
-| **Perfil** (`profile`) | Datos personales y configuración del Usuario | Cuenta, ficha |
-| **UID** (`uid`) | Identificador único provisto por Firebase Auth | ID técnico, `_id` |
-| **Pregunta Frecuente** (`faq`) | Par pregunta-respuesta publicado para consulta | Artículo de ayuda |
-| **Pregunta** (`question`) | Texto de la pregunta dentro de una FAQ | Título |
-| **Respuesta** (`answer`) | Texto de la respuesta dentro de una FAQ | Descripción, contenido |
-| **Dashboard** | Pantalla principal con métricas (solo lectura) | Inicio |
-| **Modo Oscuro** (`dark mode`) | Tema visual alternativo con colores oscuros | Modo noche |
-| **Token** (`idToken`) | Token Firebase en header `Authorization: Bearer` | Contraseña, sesión |
-| **Administrador** | Rol con permisos completos | Superusuario |
-| `created_at` | Timestamp de creación en UTC | Fecha alta |
-| `updated_at` | Timestamp de última actualización en UTC | Fecha modificación |
-
-**Reglas:** `uid` siempre de Firebase. `FAQ` = par completo. Timestamps en snake_case. `Dashboard` es solo lectura.
+| **User** | Interacting authenticated client | Client, Persona |
+| **Duration** | The time a test runs | Wait time |
+| **VUs** | Virtual Users (threads) for the load test | Users, Threads, Connections |
+| **Threshold** | SLAs that pass or fail a k6 script check | Limits, Assertions, Bounds |
+| **Scenario** | Complex load sequence configured within k6 | Script, Routine |
+| **Stage** | A ramp-up or ramp-down configuration point | Point |
 
 ---
 
 ## Project Overview
 
-> Ver `README.md` en la raíz del proyecto.
+> See `README.md` in the project root folder.

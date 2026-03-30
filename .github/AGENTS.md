@@ -2,29 +2,28 @@
 
 > Canonical shared version: this file is the source of truth for shared agent guidelines.
 
-This file defines general guidance for all AI agents working in this repository, following the **ASDD (Agent Spec Software Development)** workflow.
+This file defines general guidance for all AI agents working in this repository, following the **ASDD (Agent Spec-Driven Development)** workflow.
 
 ## Project Summary
 
-> Ver `README.md` en la raíz del proyecto para stack, arquitectura y estructura de carpetas del proyecto actual.
-> Ver `.github/README.md` para la estructura completa del framework ASDD.
+> See `README.md` at the project root for automation stack and project architecture.
+> See `.github/README.md` for the full ASDD framework structure.
 
 ## ASDD Workflow
 
-**Every new feature must follow this pipeline:**
+**Every new performance feature must follow this pipeline:**
 
 ```
-[FASE 1 — Secuencial]
+[PHASE 1 — Sequential]
 spec-generator    → /generate-spec      → .github/specs/<feature>.spec.md
 
-[FASE 2 — Secuencial]
-qa-agent          → /gherkin-case-generator, /risk-identifier
+[PHASE 2 — Sequential]
+qa-agent          → /gherkin-case-generator, /risk-identifier, /performance-analyzer
 
-[FASE 3 — Secuencial]
-[FASE 3 — Secuencial]
+[PHASE 3 — Sequential]
 qa-agent          → /implement-k6-assets, /implement-k6-script
 
-[FASE 4 — Opcional]
+[PHASE 4 — Optional]
 documentation-agent → /generate-project-readme → README, API docs, ADRs
 ```
 
@@ -33,76 +32,76 @@ documentation-agent → /generate-project-readme → README, API docs, ADRs
 Skills are portable instruction sets invokable as `/command` in Copilot Chat. They work across VS Code, GitHub Copilot CLI, and Copilot coding agent.
 
 ### ASDD Core
-| Skill | Slash Command | Descripción |
+| Skill | Slash Command | Description |
 |-------|---------------|-------------|
-| asdd-orchestrate | `/asdd-orchestrate` | Orquesta el flujo completo ASDD o consulta estado |
-| generate-spec | `/generate-spec` | Genera spec técnica en `.github/specs/` |
+| asdd-orchestrate | `/asdd-orchestrate` | Orchestrates the full ASDD flow or checks status |
+| generate-spec | `/generate-spec` | Generates technical spec in `.github/specs/` |
 
-### QA
-| Skill | Slash Command | Descripción |
+### QA & Analysis
+| Skill | Slash Command | Description |
 |-------|---------------|-------------|
-| gherkin-case-generator | `/gherkin-case-generator` | Genera casos Given-When-Then + datos de prueba |
-| risk-identifier | `/risk-identifier` | Clasifica riesgos con Regla ASD (Alto/Medio/Bajo) |
-| automation-flow-proposer | `/automation-flow-proposer` | Propone flujos a automatizar y framework |
-| performance-analyzer | `/performance-analyzer` | Planifica y analiza pruebas de performance |
+| gherkin-case-generator | `/gherkin-case-generator` | Generates Given-When-Then cases + test data |
+| risk-identifier | `/risk-identifier` | Classifies risks using High/Medium/Low matrix |
+| automation-flow-proposer | `/automation-flow-proposer` | Proposes testing flows and framework ROI |
+| performance-analyzer | `/performance-analyzer` | Plans and analyzes performance tests |
 
-### Automatización k6
-| Skill | Slash Command | Descripción |
+### k6 Performance Automation
+| Skill | Slash Command | Description |
 |-------|---------------|-------------|
-| implement-k6-assets | `/implement-k6-assets` | Genera assets (config/payloads/lib) reusables desde la spec |
-| implement-k6-script | `/implement-k6-script` | Genera el script de k6 para smoke/load/stress según la spec |
+| implement-k6-assets | `/implement-k6-assets` | Generates reusable assets (config/payloads/lib) from spec |
+| implement-k6-script | `/implement-k6-script` | Generates k6 script for smoke/load/stress from spec |
 
-### Documentación
-| Skill | Slash Command | Descripción |
+### Documentation
+| Skill | Slash Command | Description |
 |-------|---------------|-------------|
-| generate-project-readme | `/generate-project-readme` | Genera o actualiza el README.md principal basado en implementaciones reales |
+| generate-project-readme | `/generate-project-readme` | Generates or updates main README.md |
+| git-delivery-handoff | `/git-delivery-handoff` | Generates standardized commit and PR messages |
 
-## Lineamientos y Contexto
+## Guidelines and Context
 
-Los agentes deben cargar estos archivos como **primer paso** antes de generar cualquier código:
+Agents must load these files as a **first step** before generating any code:
 
-| Documento | Ruta | Agentes que lo cargan |
+| Document | Path | Agents |
 |---|---|---|
-| Lineamientos de Desarrollo | `.github/docs/lineamientos/dev-guidelines.md` | Todos |
-| Lineamientos QA | `.github/docs/lineamientos/qa-guidelines.md` | QA Agent |
-| Reglas de Oro | `.github/AGENTS.md` | Todos (siempre activas) |
+| Dev Guidelines | `.github/docs/lineamientos/dev-guidelines.md` | All |
+| QA Guidelines | `.github/docs/lineamientos/qa-guidelines.md` | QA Agent |
+| Golden Rules | `.github/AGENTS.md` | All (always active) |
 | Definition of Done | `.github/copilot-instructions.md` | QA Agent, Orchestrator |
 | Definition of Ready | `.github/copilot-instructions.md` | Spec Generator, Orchestrator |
 
 ---
 
-## Reglas de Oro
+## Golden Rules
 
-> Principio rector: todas las contribuciones de la IA deben ser seguras, transparentes, con propósito definido y alineadas con las instrucciones explícitas del usuario.
+> Guiding Principle: All AI contributions must be safe, transparent, purposeful, and aligned with explicit user instructions.
 
-### I. Integridad del Código y del Sistema
-- **No código no autorizado**: no escribir, generar ni sugerir código nuevo a menos que el usuario lo solicite explícitamente.
-- **No modificaciones no autorizadas**: no modificar, refactorizar ni eliminar código, archivos o estructuras existentes sin aprobación explícita del usuario.
-- **Preservar la lógica existente**: respetar patrones arquitectónicos, estilo de codificación y lógica operativa del proyecto.
+### I. Code and System Integrity
+- **No unauthorized code**: Do not write, generate, or suggest new code unless explicitly requested.
+- **No unauthorized modifications**: Do not modify, refactor, or delete existing code, files, or structures without explicit approval.
+- **Preserve existing logic**: Respect architectural patterns, coding styles, and project operational logic.
 
-### II. Clarificación de Requisitos
-- **Clarificación obligatoria**: si la solicitud es ambigua, incompleta o poco clara, detenerse y solicitar clarificación antes de proceder.
-- **No realizar suposiciones**: basar todas las acciones estrictamente en información explícita proporcionada por el usuario.
+### II. Requirement Clarification
+- **Mandatory clarification**: If the request is ambiguous, incomplete, or unclear, stop and ask for clarification.
+- **No assumptions**: Base all actions strictly on explicit information provided by the user.
 
-### III. Transparencia Operativa
-- **Explicar antes de actuar**: antes de cualquier acción, explicar qué se va a hacer y posibles implicaciones.
-- **Detención ante la incertidumbre**: si surge inseguridad o un conflicto con estas reglas, detenerse y consultar al usuario.
-- **Acciones orientadas a un propósito**: cada acción debe ser directamente relevante para la solicitud explícita.
+### III. Operational Transparency
+- **Explain before acting**: Before any action, explain what will be done and possible implications.
+- **Stop on uncertainty**: If uncertain or in conflict with these rules, stop and consult the user.
+- **Purpose-driven actions**: Each action must be directly relevant to the explicit request.
 
 ---
 
-## Entradas al Pipeline ASDD
+## Inputs to ASDD Pipeline
 
-| Tipo | Directorio | Descripción |
+| Type | Directory | Description |
 |------|-----------|-------------|
-| Requerimientos de negocio | `.github/requirements/` | Input: descripción funcional del feature |
-| Especificaciones técnicas | `.github/specs/` | Output del Spec Generator, fuente de verdad para implementación |
+| Business requirements | `.github/requirements/` | Input: functional feature description |
+| Technical specifications | `.github/specs/` | Spec Generator output, truth source |
 
 ## Critical Rules for All Agents
 
 1. **No implementation without a spec.** Always check `.github/specs/` first.
-2. **Never commit secrets or credentials** — `.env`, credential files and API keys must be in `.gitignore`.
+2. **Never commit secrets** — `.env` and API keys must be gitignored.
 
-## Development Commands & Integration Notes
-
-> Ver `README.md` en la raíz del proyecto.
+## Integration Notes
+> See `README.md` at the project root for execution details.

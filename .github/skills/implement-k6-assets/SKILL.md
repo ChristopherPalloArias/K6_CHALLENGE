@@ -1,33 +1,33 @@
 ---
-description: 'Genera assets de fundamentos y configuraciones reusables (env, options, thresholds, helpers) para pruebas k6 basados en la spec aprobada.'
+description: 'Generates reusable configuration and foundation assets (env, options, thresholds, helpers) for k6 tests based on the approved spec.'
 agent: qa-agent
 ---
 
 # `implement-k6-assets`
 
-Genera los assets base para ejecutar scripts de k6 a partir de una spec técnica con estado `APPROVED`.
+Generates the foundation assets required to execute k6 scripts from an `APPROVED` technical specification.
 
-## Objetivo
-Analizar la especificación y generar implementaciones reusables como datos, configuraciones y librerías auxiliares (helpers), sin escribir la lógica de ejecución del test todavía.
+## Objective
+Analyze the technical specification and generate reusable implementations such as data, configurations, and helper libraries, without writing the actual test iteration logic yet.
 
-## Tareas
+## Tasks
 
-1. Lee la spec `.github/specs/*.spec.md` con estado `APPROVED`.
-2. Analiza los umbrales (thresholds), las variables de entorno, la estructura de la base de datos de prueba o la API objetivo, y cualquier precondición.
-3. Genera o actualiza bajo la carpeta `k6/`:
-   - `k6/config/env.js`: Módulo para la extracción controlada de variables de entorno y valores base (e.g. `BASE_URL`).
-   - `k6/config/options.js`: Definición de etapas, escenarios (smoke, load, stress) según la spec.
-   - `k6/config/thresholds.js`: Reglas estrictas extraídas de la spec.
-   - `k6/lib/http-client.js` o helpers: Clientes pre-configurados para API o interacciones base.
-   - `k6/lib/checks.js`: Módulo reusable para validaciones estándar sobre las respuestas.
-   - `k6/data/test-data.json`: Datos estáticos definidos explícitamente en la especificación, sin inventar credenciales reales.
-4. No generar el script final de ejecución en este paso, solo los assets de soporte.
+1. Read the specification in `.github/specs/*.spec.md` that is currently `APPROVED`.
+2. Analyze the thresholds, environment variables, target API structure or database, and any preconditions.
+3. Generate or update the following under the `k6/` folder:
+   - `k6/config/env.js`: Module for safely extracting environment variables and base values (e.g., `BASE_URL`).
+   - `k6/config/options.js`: Definition of stages, scenarios (smoke, load, stress) according to the spec.
+   - `k6/config/thresholds.js`: Strict SLA rules extracted from the spec.
+   - `k6/lib/http-client.js` or helpers: Pre-configured clients for target APIs or fundamental interactions.
+   - `k6/lib/checks.js`: Reusable module for standard response validations.
+   - `k6/data/test-data.json`: Static data defined explicitly in the specification, without inventing real credentials.
+4. Do NOT generate the final execution script in this step, only the supporting assets.
 
-## Restricciones
-- Solo utilizar la información explícita de la spec. No inventar credenciales, endpoints no documendados ni SLAs no especificados.
-- Separar config de pruebas funcionales o lógicas.
-- Mantener la genericidad. Si algo no aplica a la spec actual, no se genera.
-- Exportar los flujos usando ESModules (`export const`).
+## Constraints
+- Only use information explicit in the spec. Do not invent credentials, undocumented endpoints, or unspecified SLAs.
+- Separate configuration from functional or test logic.
+- Keep it generic. If something does not apply to the current spec, do not generate it.
+- Export all workflows and data using ESModules (`export const`).
 
-## Salida
-Lista de los archivos creados o actualizados bajo el directorio `k6/` y una explicación breve de su funcionalidad.
+## Output
+List of files created or updated under the `k6/` directory and a brief explanation of their functionality.
