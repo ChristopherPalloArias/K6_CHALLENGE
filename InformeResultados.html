@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Informe de Resultados – Prueba de Carga</title>
+  <style>
+    body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; margin: 2.5cm; color: #1a1a1a; }
+    h1 { font-size: 18pt; color: #1F3864; text-align: center; border-bottom: 3px solid #1F3864; padding-bottom: 6px; }
+    h2 { font-size: 13pt; color: #1F3864; border-bottom: 1px solid #BDD7EE; padding-bottom: 4px; margin-top: 24px; }
+    h3 { font-size: 11pt; color: #2E5B9A; margin-top: 16px; }
+    table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 10pt; }
+    th { background-color: #1F3864; color: white; padding: 7px 10px; text-align: left; }
+    td { border: 1px solid #BDD7EE; padding: 6px 10px; }
+    tr:nth-child(even) td { background-color: #EBF3FB; }
+    .pass { color: #1E7A34; font-weight: bold; }
+    .fail { color: #C0392B; font-weight: bold; }
+    .warn { color: #D68910; font-weight: bold; }
+    .box { background: #EBF3FB; border-left: 4px solid #1F3864; padding: 10px 14px; margin: 12px 0; }
+    .box-warn { background: #FEF9E7; border-left: 4px solid #D68910; padding: 10px 14px; margin: 12px 0; }
+    .box-fail { background: #FDEDEC; border-left: 4px solid #C0392B; padding: 10px 14px; margin: 12px 0; }
+    p { line-height: 1.6; }
+    ul li { margin-bottom: 5px; line-height: 1.6; }
+    .meta-table td { border: none; padding: 3px 12px; }
+    .center { text-align: center; }
+    .diagram-caption { font-style: italic; font-size: 9.5pt; color: #555; text-align: center; margin-top: 4px; }
+    .diag-box { border: 1px solid #BDD7EE; border-radius: 4px; padding: 12px; background: #F8FBFF; margin: 12px 0; }
+  </style>
+</head>
+<body>
+
+<h1>Informe de Resultados — Prueba de Carga<br/>
+<span style="font-size:11pt;font-weight:normal;">App Transaction Balance · k6 Load Test</span></h1>
+
+<table class="meta-table" style="margin-top:18px; margin-bottom:24px;">
+  <tr><td><strong>Autor:</strong></td><td>Christopher Ismael Pallo Arias</td><td><strong>Correo:</strong></td><td>christopher.pallo@sofka.com.co</td></tr>
+  <tr><td><strong>Fecha:</strong></td><td>2025-04-24</td><td><strong>Herramienta:</strong></td><td>k6 (Grafana)</td></tr>
+  <tr><td><strong>Escenario:</strong></td><td colspan="3">App Transaction Balance – Prueba de Carga Escalonada (Stage 0, 1, 2)</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>1. Resumen Ejecutivo (Análisis de Resultados)</h2>
+
+<p>Con base en los artefactos provistos para evaluación (<code>textSummary.txt</code> y diagrama de monitoreo), se ha realizado un análisis forense de la prueba de carga previamente ejecutada sobre el servicio <strong>App Transaction Balance</strong>. Los datos reflejan que la evidencia corresponde a una ejecución escalonada, habiéndose inyectado un pico de <strong>140 VUs</strong> sostenidos y evidenciando un throughput máximo en la gráfica de <strong>82.6 req/s</strong>.</p>
+
+<p>Del examen al log de salida de k6, se constata un volumen total de <strong>276,650 solicitudes HTTP</strong>. De estas, el <strong>97.55%</strong> procesaron respuestas exitosamente, mientras que el <strong>2.44%</strong> (6,759 solicitudes) registraron fallo — un valor que, si bien se ubica estadísticamente por debajo del umbral estándar de aceptación (&lt; 3%), esconde una anomalía crítica en su distribución.</p>
+
+<div class="box-warn">
+  <strong>⚠️ Atención:</strong> Aunque el check global de "failed_requests" se presenta matemáticamente aprobado (2.44%), el análisis minucioso de las etapas demuestra que casi la totalidad absoluta de estos fallos se concentró en la <strong>Etapa 1</strong> (6,756 errores HTTP 4xx y 5xx). Esto indica que no son errores aislados, sino que el servidor fue llevado a un cuello de botella y sobrepasó su límite en la rampa de máxima carga.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>2. Parámetros de la Prueba</h2>
+
+<table>
+  <tr><th>Parámetro</th><th>Valor</th></tr>
+  <tr><td>Total de iteraciones ejecutadas</td><td>276,650</td></tr>
+  <tr><td>Throughput sostenido (RPS global)</td><td>73.18 req/s</td></tr>
+  <tr><td>Throughput pico observado (diagrama)</td><td>82.6 req/s @ 140 VUs</td></tr>
+  <tr><td>Virtual Users máximos (VUs max)</td><td>140</td></tr>
+  <tr><td>Duración total aproximada</td><td>~63 minutos (01:40 – 02:30 aprox.)</td></tr>
+  <tr><td>Datos recibidos</td><td>842 MB (223 kB/s)</td></tr>
+  <tr><td>Datos enviados</td><td>588 MB (156 kB/s)</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>3. Análisis de Métricas de Rendimiento</h2>
+
+<h3>3.1 Tiempo de Respuesta HTTP (<code>http_req_duration</code>)</h3>
+
+<table>
+  <tr><th>Percentil / Estadístico</th><th>Valor (Total)</th><th>Valor (Solo respuestas exitosas)</th><th>Evaluación</th></tr>
+  <tr><td>Promedio (avg)</td><td>861.68 ms</td><td>735.84 ms</td><td class="pass">✓ Dentro del umbral</td></tr>
+  <tr><td>Mediana (p50)</td><td>613.42 ms</td><td>600.70 ms</td><td class="pass">✓ Óptima</td></tr>
+  <tr><td>Percentil 90 (p90)</td><td>1,280 ms</td><td>1,220 ms</td><td class="pass">✓ Aceptable</td></tr>
+  <tr><td>Percentil 95 (p95)</td><td>1,570 ms</td><td>1,420 ms</td><td class="warn">⚠ Borderline</td></tr>
+  <tr><td>Máximo (max)</td><td>29,930 ms (~30 s)</td><td>26,720 ms (~27 s)</td><td class="fail">✗ Crítico</td></tr>
+  <tr><td>Mínimo (min)</td><td>191.86 ms</td><td>244.92 ms</td><td class="pass">✓ Saludable</td></tr>
+</table>
+
+<div class="box">
+  <strong>Interpretación:</strong> La mediana de 613 ms indica que la mitad de las solicitudes se resuelven en menos de 0.6 segundos, lo cual es una base robusta. Sin embargo, el <strong>valor máximo de ~30 segundos</strong> es una señal de alarma: existen solicitudes individuales cuyos tiempos de espera se extienden dramáticamente, probablemente causadas por saturación del backend durante el pico de carga de la Etapa 1. El p95 de 1,570 ms supera ligeramente el umbral típico de 1,500 ms, evidenciando inestabilidad en la cola alta de distribución.
+</div>
+
+<h3>3.2 Tasa de Fallo y Distribución por Etapa</h3>
+
+<table>
+  <tr><th>Métrica</th><th>Valor</th><th>Evaluación</th></tr>
+  <tr><td>Total de solicitudes fallidas</td><td>6,759 (2.44%)</td><td class="warn">⚠ Aprobado (límite &lt;3%)</td></tr>
+  <tr><td>Solicitudes exitosas</td><td>269,891 (97.55%)</td><td class="pass">✓ Correcto</td></tr>
+</table>
+
+<p><strong>Distribución de errores por Etapa y tipo:</strong></p>
+
+<table>
+  <tr><th>Indicador</th><th>Cantidad</th><th>Tasa (req/s)</th><th>Tipo de error</th><th>Etapa</th></tr>
+  <tr><td>y_failed_request_stage_0_HTTP5xx</td><td>1</td><td>0.000265/s</td><td>Error de Servidor (5xx)</td><td class="pass">Etapa 0 — Mínimo impacto</td></tr>
+  <tr><td>y_failed_request_stage_1_HTTP4xx</td><td>769</td><td>0.203/s</td><td>Error de Cliente (4xx)</td><td class="warn">Etapa 1 — Moderado</td></tr>
+  <tr><td>y_failed_request_stage_1_HTTP5xx</td><td>5,987</td><td>1.584/s</td><td>Error de Servidor (5xx)</td><td class="fail">Etapa 1 — CRÍTICO</td></tr>
+  <tr><td>y_failed_request_stage_2_HTTP5xx</td><td>2</td><td>0.000529/s</td><td>Error de Servidor (5xx)</td><td class="pass">Etapa 2 — Recuperación</td></tr>
+</table>
+
+<div class="box-fail">
+  <strong>🔴 Hallazgo Crítico:</strong> El <strong>99.97% de todos los fallos</strong> (6,756 de 6,759) se concentran en la <strong>Etapa 1</strong>, y de esos, el 88.6% son errores HTTP 5xx (errores internos del servidor). Esto indica que el backend colapsó parcialmente bajo la presión de carga sostenida de los 140 VUs, incapaz de procesar la demanda entrante sin empezar a rechazar peticiones por sobrecapacidad. Los errores 4xx en la Etapa 1 (769) sugieren posiblemente problemas de rate-limiting o autenticación expirando bajo estrés.
+</div>
+
+<h3>3.3 Tiempos de Red y Conectividad</h3>
+
+<table>
+  <tr><th>Métrica</th><th>Promedio</th><th>p(90)</th><th>p(95)</th><th>Evaluación</th></tr>
+  <tr><td>http_req_blocked</td><td>10.97 µs</td><td>0 ms</td><td>0 ms</td><td class="pass">✓ Conexiones reutilizadas eficientemente (Keep-Alive)</td></tr>
+  <tr><td>http_req_connecting</td><td>3.30 µs</td><td>0 ms</td><td>0 ms</td><td class="pass">✓ TCP Connection Pooling funcionando</td></tr>
+  <tr><td>http_req_tls_handshaking</td><td>7.36 µs</td><td>0 ms</td><td>0 ms</td><td class="pass">✓ TLS Sessions en caché — sin overhead de handshake</td></tr>
+  <tr><td>http_req_sending</td><td>43.22 µs</td><td>0 ms</td><td>517 µs</td><td class="pass">✓ Payload de envío liviano</td></tr>
+  <tr><td>http_req_receiving</td><td>424.03 µs</td><td>988 µs</td><td>1.05 ms</td><td class="pass">✓ Transferencia de respuesta estable</td></tr>
+  <tr><td>http_req_waiting (TTFB)</td><td>861.21 ms</td><td>1.28 s</td><td>1.57 s</td><td class="warn">⚠ Tiempo de espera del servidor elevado</td></tr>
+</table>
+
+<div class="box">
+  <strong>Interpretación:</strong> Los valores de <em>blocked</em>, <em>connecting</em> y <em>tls_handshaking</em> prácticamente en cero confirman que el cliente k6 está utilizando de manera eficiente la reutilización de conexiones TCP (Keep-Alive), eliminando el overhead de establecimiento de conexión. El cuello de botella es puramente el <strong>tiempo de espera del servidor (TTFB)</strong> que consume prácticamente el 100% de la latencia total, indicando que el problema está en el procesamiento a nivel de aplicación/base de datos, no en la red.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>4. Análisis del Diagrama VUs vs. HTTP Requests/s</h2>
+
+<div class="diag-box">
+  <p><strong>Figura 1:</strong> Gráfica de monitoreo en tiempo real — VUs activos (línea azul oscuro) vs. Peticiones por segundo HTTP (línea azul claro), ventana temporal: 01:40:00 – 02:30:00.</p>
+  <p class="diagram-caption">Datos observados: al timestamp 02:02:00, VUs = 140 (estabilizados), http_reqs = 82.6/s (pico de throughput)</p>
+</div>
+
+<h3>4.1 Comportamiento por Fases Observadas en el Diagrama</h3>
+
+<table>
+  <tr><th>Fase</th><th>Ventana Temporal (aprox.)</th><th>VUs Activos</th><th>RPS Observado</th><th>Comportamiento</th></tr>
+  <tr><td><strong>Rampa ascendente (Ramp-Up)</strong></td><td>01:40 – 01:50</td><td>0 → 140</td><td>0 → ~80/s</td><td>Carga escalonada, crecimiento progresivo.</td></tr>
+  <tr><td><strong>Carga sostenida (Stage 1 Peak)</strong></td><td>01:50 – 02:00</td><td>140 (constante)</td><td>~75–82/s (oscilante)</td><td>Máxima presión. Aquí ocurren los 5,987 errores 5xx.</td></tr>
+  <tr><td><strong>Colapso / Interrupción</strong></td><td>~02:00 – 02:05</td><td>140 → ~0</td><td>Caída abrupta a 0</td><td>El backend colapsa o hay una pausa forzada de carga.</td></tr>
+  <tr><td><strong>Recuperación (Stage 2)</strong></td><td>02:05 – 02:25</td><td>0 → ~100</td><td>~65–80/s</td><td>El sistema se recupera gradualmente.</td></tr>
+  <tr><td><strong>Rampa descendente (Ramp-Down)</strong></td><td>02:25 – 02:30</td><td>~100 → 0</td><td>~75 → 0</td><td>Finalización ordenada del test.</td></tr>
+</table>
+
+<h3>4.2 Relación VUs ↔ RPS</h3>
+<p>La relación entre los VUs y el throughput exhibe un comportamiento <strong>lineal hasta el umbral de saturación (~140 VUs / ~82 RPS)</strong>. Por encima de ese punto, el sistema no escala proporcionalmente: agregar más VUs no traduce en más RPS — en cambio, acumula solicitudes en cola y dispara errores 5xx. Esto clasifica el sistema como un servidor con una <strong>capacidad máxima de servicio efectivo de aproximadamente 80 RPS</strong> bajo la arquitectura y configuración actuales.</p>
+
+<p>La caída abrupta a 0 RPS visible al rededor de las 02:00–02:05 corresponde con el punto de mayor concentración de errores y podría indicar un <strong>reinicio o reinicio automático</strong> del proceso del servidor (o un circuit-breaker activado), lo cual está directamente correlacionado con los 5,987 errores HTTP 5xx de la Etapa 1.</p>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>5. Tabla Resumen de Cumplimiento de SLAs</h2>
+
+<table>
+  <tr><th>SLA / Criterio</th><th>Umbral</th><th>Valor Obtenido</th><th>Estado</th></tr>
+  <tr><td>Tasa de error global</td><td>&lt; 3.0%</td><td>2.44%</td><td class="pass">✓ APROBADO</td></tr>
+  <tr><td>Check "App Transaction Balance OK"</td><td>Positivo</td><td>97.55% (269,891 ✓)</td><td class="pass">✓ APROBADO</td></tr>
+  <tr><td>Tiempo de respuesta promedio</td><td>&lt; 1,500 ms (referencial)</td><td>861.68 ms</td><td class="pass">✓ APROBADO</td></tr>
+  <tr><td>Percentil 95 (p95)</td><td>&lt; 1,500 ms</td><td>1,570 ms</td><td class="fail">✗ FALLIDO</td></tr>
+  <tr><td>Tiempo máximo de respuesta</td><td>&lt; 5,000 ms (buena práctica)</td><td>29,930 ms</td><td class="fail">✗ CRÍTICO</td></tr>
+  <tr><td>Errores 5xx en Stage 1</td><td>0 (ideal)</td><td>5,987</td><td class="fail">✗ CRÍTICO</td></tr>
+  <tr><td>Estabilidad del throughput</td><td>Constante bajo carga</td><td>Colapso detectado ~02:00</td><td class="warn">⚠ INESTABLE</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>6. Hallazgos Principales</h2>
+
+<ol>
+  <li><strong>El sistema opera correctamente en carga baja-moderada</strong> (Etapa 0): únicamente 1 error 5xx, tiempos de respuesta estables y throughput lineal.</li>
+  <li><strong>Cuello de botella severo al alcanzar los 140 VUs sostenidos (Etapa 1):</strong> El 88.6% de todos los fallos son errores de servidor (5xx), evidenciando que el backend no puede absorber la carga pico sin colapsar parcialmente.</li>
+  <li><strong>El p95 supera el umbral de 1.5 s</strong> (1,570 ms vs 1,500 ms), aunque el promedio y la mediana se mantienen saludables. Esto indica una distribución de latencia con cola pesada (heavy-tail) causada por los timeouts de las solicitudes que quedan en espera durante el colapso.</li>
+  <li><strong>La caída abrupta del RPS a 0</strong> visible en el diagrama sugiere un evento de reinicio del servidor o activación de un circuit-breaker, no una rampa planificada. Esto es un riesgo de disponibilidad en un entorno productivo.</li>
+  <li><strong>La infraestructura de red (TLS, TCP, Keep-Alive) funciona perfectamente</strong>: el problema es 100% a nivel de procesamiento de aplicación y/o base de datos.</li>
+</ol>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>7. Recomendaciones</h2>
+
+<table>
+  <tr><th>Prioridad</th><th>Área</th><th>Recomendación</th></tr>
+  <tr><td class="fail"><strong>Alta</strong></td><td>Escalabilidad Backend</td><td>Investigar el motivo de los 5,987 errores HTTP 5xx en la Etapa 1. Revisar logs del servidor (timeouts de DB, saturación de threads, memory leaks) durante el período 01:50–02:05.</td></tr>
+  <tr><td class="fail"><strong>Alta</strong></td><td>Estabilidad del Proceso</td><td>Confirmar si ocurrió un reinicio del servidor o activación de un circuit-breaker en ~02:00. Si es así, revisar los umbrales de los health-checks y configurar alertas automáticas.</td></tr>
+  <tr><td class="warn"><strong>Media</strong></td><td>Optimización de SLA p95</td><td>Implementar caché para las consultas frecuentes (transacciones recientes) y considerar paginación para reducir el payload de respuesta. Objetivo: llevar p95 por debajo de 1,200 ms.</td></tr>
+  <tr><td class="warn"><strong>Media</strong></td><td>Rate Limiting / 4xx</td><td>Revisar los 769 errores HTTP 4xx en la Etapa 1. Si son errores de autenticación (401/403), implementar estrategia de token refresh bajo carga. Si son 429 (Too Many Requests), revisar los límites configurados.</td></tr>
+  <tr><td class="pass"><strong>Baja</strong></td><td>Capacidad Horizontal</td><td>Evaluar el escalado horizontal (más instancias del servicio) o el uso de un balanceador de carga más agresivo para distribuir los 140 VUs entre múltiples réplicas del servicio.</td></tr>
+  <tr><td class="pass"><strong>Baja</strong></td><td>Monitoreo Continuo</td><td>Integrar k6 con Grafana Cloud o InfluxDB para persistir las métricas históricas y poder comparar ejecuciones a lo largo del tiempo (trend analysis).</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>8. Conclusiones y Recomendaciones de Auditoría</h2>
+
+<p>El análisis profundo de las evidencias suministradas permitió diagnosticar de forma clara el punto de quiebre y la salud transaccional del servicio <strong>App Transaction Balance</strong>. Los registros demuestran que el sistema posee una base sana de rendimiento en cargas bajas o ascendentes, presentando una envidiable mediana de respuesta (613 ms) e infraestructura de red sólida al evitar latencias en la conjunción de TLS y flujos TCP. Esto infiere una arquitectura correctamente configurada para el ritmo de operación diaria normal.</p>
+
+<p>No obstante, las trazas reportadas en la <em>Etapa 1</em> (fase sostenida de 140 VUs) testifican el <strong>límite de tracción real</strong> del sistema. Acumulando vertiginosamente más de 5,900 errores HTTP 5xx concurrentes en dicha ventana temporal, documentando que el procesamiento del backend o la base de datos se saturó severamente antes de que el throughput pudiera pasar o mantenerse por arriba de los 80 RPS observados en el gráfico. La breve interrupción a "cero" en el gráfico sumada a los errores, podría relacionarse al estrangulamiento de Base de Datos para abrir y sostener nuevas conexiones (DB pool limits exhaustos).</p>
+
+<p><strong>Veredicto Final:</strong> Para certificar la infraestructura que arrojó esta prueba como APROBADA para su liberación a un ecosistema crítico, es mandatorio remediar las vulnerabilidades de memoria o transaccionalidad descritas bajo carga máxima (Etapa 1). La recuperación posterior es destacable y habla de su resiliencia, pero el derribo o inestabilidad mostrada en la cresta de la métrica (<code>p95</code> rebasando el umbral de SLA) lo descarta como óptimo bajo estrés pico recurrente sin previas alertas o mejoras de <em>AutoScaling</em>.</p>
+
+<hr style="margin-top: 40px;" />
+<p class="center" style="font-size: 9pt; color: #888;">
+  Documento generado para: Ejercicio 2 – Análisis de Resultados de Prueba de Carga<br/>
+  Autor: Christopher Ismael Pallo Arias · christopher.pallo@sofka.com.co · 0995312828
+</p>
+
+</body>
+</html>
