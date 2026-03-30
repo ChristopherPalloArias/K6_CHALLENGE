@@ -33,8 +33,9 @@
 
 - 📄 **Instrucciones de Ejecución:** [`readme.txt`](./readme.txt) 
 - 🧠 **Hallazgos y Conclusiones K6:** [`conclusiones.txt`](./conclusiones.txt) 
-- 📊 **Evidencia de Análisis (Ejercicio 2):** [`InformeResultados.doc`](./InformeResultados.doc) *(o versión web: [`InformeResultados.html`](./InformeResultados.html))*
-- 🚀 **Script Principal K6:** [`k6/scenarios/load-login.js`](./k6/scenarios/load-login.js)
+- 📊 **Evidencia de Ejecución (Logs Oficiales):** [`Carpeta /reports`](./reports/) *(contiene `textSummary.txt` y `summary.json` que demuestran el cumplimiento del SLA de la automatización).*
+- 📈 **Análisis Forense Avanzado (Ejercicio 2):** [`InformeResultados.doc`](./InformeResultados.doc) *(o versión web: [`InformeResultados.html`](./InformeResultados.html))*
+- 🚀 **Script Principal K6 (Automatización):** [`k6/scenarios/load-login.js`](./k6/scenarios/load-login.js)
 
 ---
 
