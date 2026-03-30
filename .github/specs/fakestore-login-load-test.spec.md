@@ -1,4 +1,3 @@
-````markdown
 ---
 id: PERF-001
 status: APPROVED
@@ -427,5 +426,3 @@ Once this specification is reviewed, the flow should continue as follows:
 4. Execute the k6 test
 5. Produce `readme.txt`, `conclusiones.txt`, and repository evidence
 
-```
-```
