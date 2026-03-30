@@ -286,9 +286,6 @@ Al concluir los **3 minutos** de duración de las fases, K6 pintará el reporte 
 * **Carga por Estrategia de Llegada Constante (Constant Arrival Rate):**  
   Para asegurar de manera inflexible la exigencia de las **20 TPS**, el framework emplea el perfilador `constant-arrival-rate` en sus `options.js`. A diferencia del ramping clásico donde los VUs iteran libremente (lo cual genera un TPS caótico o impredecible), este executor se encarga de inyectar matemáticamente la carga requerida sin falta (mientras el Backend de FakeStore soporte la tracción), saturando el recurso con rigor de QA.
 
-* **Identificación del Bug de Datos de la API (Typos Estructurales):**  
-  Durante la parametrización de credenciales del CSV, las iteraciones arrojaban un 20% de error constante (`401 Unauthorized`). La investigación forense determinó que en la documentación de entrada existía una errata al copiar la contraseña provista: el usuario de prueba *kevinryan* tenía en la orden base enviada originalmente el texto `key02937@` con "y". Al confirmar contra la DB oficial de FakeStore, su credencial real es `kev02937@` con "v". Se procedió a aplicar un Fix técnico y lógico de corrección de datos. De inmediato la tasa de errores cayó a su valor perfecto **(0%)**.
-
 * **Validación de Estatus HTTP Real (201 Created):**  
   Un acercamiento deficiente de automatización forzaría un chequeo simplista buscando un `status === 200`. Al correr trazas HTTP asertivas hacia la interfaz de red interna `/auth/login`, el script de pruebas logró interceptar y detectar que la ingeniería de FakeStore utiliza el estándar del patrón RESTful **201 Created** en lugar de 200 tradicional cuando la generación del Token (Authentication) es impecable. El Assert condicional (`checks.js`) se diseñó asertivamente para capturar ambos códigos.
 
