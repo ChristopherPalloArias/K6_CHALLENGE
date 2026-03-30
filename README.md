@@ -27,6 +27,17 @@
 
 ---
 
+## 📌 Panel de Evaluación y Entregables Solicitados
+
+> ⚠️ **ATENCIÓN EVALUADOR:** Todos los insumos obligatorios exigidos en el Ejercicio 1 y Ejercicio 2 fueron resueltos, documentados y pueden ser auditados de forma inmediata:
+
+- 📄 **Instrucciones de Ejecución:** [`readme.txt`](./readme.txt) 
+- 🧠 **Hallazgos y Conclusiones K6:** [`conclusiones.txt`](./conclusiones.txt) 
+- 📊 **Evidencia de Análisis (Ejercicio 2):** [`InformeResultados.doc`](./InformeResultados.doc) *(o versión web: [`InformeResultados.html`](./InformeResultados.html))*
+- 🚀 **Script Principal K6:** [`k6/scenarios/load-login.js`](./k6/scenarios/load-login.js)
+
+---
+
 ## 📋 Tabla de Contenidos
 1. [Contexto del Reto](#-contexto-del-reto)
 2. [Entorno y Prerrequisitos](#️-entorno-y-prerrequisitos)
