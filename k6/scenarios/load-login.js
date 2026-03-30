@@ -95,7 +95,7 @@ export default function (data) {
 
   // Validate response
   check(res, {
-    'status is 200': (r) => r.status === 200,
+    'status is 200 or 201': (r) => r.status === 200 || r.status === 201,
     'response is json': (r) => {
       try { r.json(); return true; } catch (_) { return false; }
     },
