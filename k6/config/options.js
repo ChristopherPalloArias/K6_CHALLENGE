@@ -2,57 +2,70 @@ import { thresholds } from './thresholds.js';
 
 /**
  * Executor configurations for FakeStore login load test (PERF-001).
- * 
+ *
  * Uses constant-arrival-rate executor to directly prove the minimum 20 TPS requirement.
- * Three phases: warm-up (stabilization), main load (SLA measurement), cool-down (graceful shutdown).
+ * Note: constant-arrival-rate does NOT support stages; rate is fixed for the full duration.
+ * Three-phase behavior is simulated via separate scenario entries in the scenarios block.
  */
 
 /**
  * SMOKE TEST: Quick connectivity verification
- * - Duration: 10s
- * - Rate: 5 req/s (baseline)
- * - Purpose: Confirm endpoint accessibility before main test
+ * - Duration: 10s @ 5 req/s
+ * - Purpose: Confirm endpoint accessibility before main load test
  */
 export const smokeOptions = {
-  executor: 'constant-arrival-rate',
-  rate: 5, // 5 requests per second
-  timeUnit: '1s',
-  duration: '10s',
-  preAllocatedVUs: 2,
-  maxVUs: 10,
+  scenarios: {
+    smoke: {
+      executor: 'constant-arrival-rate',
+      rate: 5,
+      timeUnit: '1s',
+      duration: '10s',
+      preAllocatedVUs: 2,
+      maxVUs: 10,
+    },
+  },
   thresholds: thresholds.smoke,
 };
 
 /**
  * LOAD TEST: Primary SLA validation
- * - Three stages: warm-up (30s @ 5 req/s), main load (120s @ 20 req/s), cool-down (30s ramp to 0)
- * - Purpose: Prove system sustains 20 TPS while meeting latency and error-rate SLAs
- * - Measurement window: main load phase only (warm-up and cool-down excluded)
+ * Three consecutive scenarios chained by startTime offset:
+ *   - warm_up:   30s @ 5 req/s  (stabilization, metrics expected but not primary SLA)
+ *   - main_load: 120s @ 20 req/s (SLA measurement window)
+ *   - cool_down: 30s @ 5 req/s  (graceful shutdown)
+ *
+ * maxVUs = 50 gives k6 enough headroom if the target API is slow.
  */
 export const loadOptions = {
-  executor: 'constant-arrival-rate',
-  rate: 20, // Target: 20 requests per second
-  timeUnit: '1s',
-  duration: '2m30s', // 30s warm-up + 120s main load + 30s cool-down
-  preAllocatedVUs: 10,
-  maxVUs: 50,
-  
-  // Stages allow gradual load changes
-  stages: [
-    {
+  scenarios: {
+    warm_up: {
+      executor: 'constant-arrival-rate',
+      rate: 5,
+      timeUnit: '1s',
       duration: '30s',
-      target: 5, // Warm-up: 5 req/s for connectivity verification
+      preAllocatedVUs: 5,
+      maxVUs: 20,
+      startTime: '0s',
     },
-    {
+    main_load: {
+      executor: 'constant-arrival-rate',
+      rate: 20,
+      timeUnit: '1s',
       duration: '120s',
-      target: 20, // Main load: 20 req/s (SLA measurement window)
+      preAllocatedVUs: 10,
+      maxVUs: 50,
+      startTime: '30s',
     },
-    {
+    cool_down: {
+      executor: 'constant-arrival-rate',
+      rate: 5,
+      timeUnit: '1s',
       duration: '30s',
-      target: 0, // Cool-down: linear ramp to 0
+      preAllocatedVUs: 5,
+      maxVUs: 20,
+      startTime: '150s',
     },
-  ],
-  
+  },
   thresholds: thresholds.load,
 };
 

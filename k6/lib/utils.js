@@ -1,4 +1,4 @@
-import { open } from 'k6/net';
+import { open } from 'k6';
 import { ENV } from '../config/env.js';
 
 /**
@@ -7,13 +7,110 @@ import { ENV } from '../config/env.js';
  */
 
 /**
- * Load credentials from CSV file
+ * Load credentials from CSV file.
  * CSV format: user,passwd
  * @returns {Array<{username: string, password: string}>} Array of credential objects
  * @throws {Error} If CSV file cannot be read or is malformed
  */
 export function loadCredentialsFromCSV() {
   try {
-    // Read CSV file synchronously during setup
     const file = open(ENV.CSV_PATH);
-    const lines = file.split('\n').filter(line => line.trim() !== '');\n    \n    if (lines.length < 2) {\n      throw new Error(`CSV file must contain header and at least one credential row. Found ${lines.length} lines.`);\n    }\n\n    // Parse header\n    const headerLine = lines[0];\n    const headers = headerLine.split(',').map(h => h.trim());\n    \n    if (headers.length !== 2 || headers[0] !== 'user' || headers[1] !== 'passwd') {\n      throw new Error(`CSV header must be exactly \"user,passwd\". Found: \"${headerLine}\"`);\n    }\n\n    // Parse credential rows\n    const credentials = [];\n    for (let i = 1; i < lines.length; i++) {\n      const parts = lines[i].split(',');\n      if (parts.length === 2) {\n        credentials.push({\n          username: parts[0].trim(),\n          password: parts[1].trim(),\n        });\n      }\n    }\n\n    if (credentials.length === 0) {\n      throw new Error('CSV file contains no credential rows.');\n    }\n\n    if (ENV.DEBUG_MODE) {\n      console.log(`Loaded ${credentials.length} credentials from ${ENV.CSV_PATH}`);\n    }\n\n    return credentials;\n  } catch (err) {\n    console.error(`Failed to load credentials from CSV: ${err.message}`);\n    throw err;\n  }\n}\n\n/**\n * Distribute credentials evenly across virtual users\n * Each VU gets a subset of credentials to cycle through\n * This reduces per-credential reuse frequency compared to global cycling\n * @param {Array} allCredentials - All available credentials\n * @param {number} totalVUs - Total number of virtual users (estimate)\n * @returns {Array} Subset of credentials assigned to current VU\n */\nexport function getCredentialsForVU(allCredentials, totalVUs = 50) {\n  const vuIndex = __VU - 1; // __VU is 1-indexed\n  const credentialsPerVU = Math.ceil(allCredentials.length / totalVUs);\n  const startIdx = (vuIndex % allCredentials.length);\n  \n  // Cycle through credentials: VU 1 gets creds 0,1,2,...; VU 2 gets creds 1,2,3,...; etc.\n  // This ensures even distribution even with more VUs than credentials\n  const assigned = [];\n  for (let i = 0; i < credentialsPerVU; i++) {\n    assigned.push(allCredentials[(startIdx + i) % allCredentials.length]);\n  }\n  \n  return assigned;\n}\n\n/**\n * Get next credential for current iteration\n * Cycles through the credential pool for this VU\n * @param {Array} vuCredentials - Credentials assigned to this VU\n * @param {number} iterationIndex - Current iteration number (0-indexed)\n * @returns {Object} Next credential {username, password}\n */\nexport function getNextCredential(vuCredentials, iterationIndex) {\n  if (!vuCredentials || vuCredentials.length === 0) {\n    throw new Error('No credentials available for VU');\n  }\n  \n  const index = iterationIndex % vuCredentials.length;\n  return vuCredentials[index];\n}\n\n/**\n * Log credential usage for debugging (only in debug mode)\n * @param {Object} credential - The credential being used\n * @param {number} iterationIndex - Current iteration\n */\nexport function logCredentialUsage(credential, iterationIndex) {\n  if (ENV.DEBUG_MODE) {\n    console.log(`[VU ${__VU}, Iter ${iterationIndex}] Using credential: ${credential.username}`);\n  }\n}\n\n/**\n * Format credentials as JSON for request body\n * @param {Object} credential - {username, password}\n * @returns {Object} Formatted request payload\n */\nexport function formatLoginPayload(credential) {\n  return {\n    username: credential.username,\n    password: credential.password,\n  };\n}
+    const lines = file.split('\n').filter(line => line.trim() !== '');
+
+    if (lines.length < 2) {
+      throw new Error(
+        `CSV file must contain header and at least one credential row. Found ${lines.length} lines.`
+      );
+    }
+
+    // Parse and validate header
+    const headerLine = lines[0];
+    const headers = headerLine.split(',').map(h => h.trim());
+
+    if (headers.length !== 2 || headers[0] !== 'user' || headers[1] !== 'passwd') {
+      throw new Error(`CSV header must be exactly "user,passwd". Found: "${headerLine}"`);
+    }
+
+    // Parse credential rows
+    const credentials = [];
+    for (let i = 1; i < lines.length; i++) {
+      const parts = lines[i].split(',');
+      if (parts.length === 2) {
+        credentials.push({
+          username: parts[0].trim(),
+          password: parts[1].trim(),
+        });
+      }
+    }
+
+    if (credentials.length === 0) {
+      throw new Error('CSV file contains no credential rows.');
+    }
+
+    if (ENV.DEBUG_MODE) {
+      console.log(`Loaded ${credentials.length} credentials from ${ENV.CSV_PATH}`);
+    }
+
+    return credentials;
+  } catch (err) {
+    console.error(`Failed to load credentials from CSV: ${err.message}`);
+    throw err;
+  }
+}
+
+/**
+ * Distribute credentials evenly across virtual users.
+ * Each VU gets a subset of credentials to cycle through, reducing per-credential reuse.
+ * @param {Array} allCredentials - All available credentials
+ * @param {number} totalVUs - Total number of virtual users (estimate)
+ * @returns {Array} Subset of credentials assigned to current VU
+ */
+export function getCredentialsForVU(allCredentials, totalVUs = 50) {
+  const vuIndex = __VU - 1; // __VU is 1-indexed
+  const credentialsPerVU = Math.ceil(allCredentials.length / totalVUs);
+  const startIdx = vuIndex % allCredentials.length;
+
+  const assigned = [];
+  for (let i = 0; i < credentialsPerVU; i++) {
+    assigned.push(allCredentials[(startIdx + i) % allCredentials.length]);
+  }
+
+  return assigned;
+}
+
+/**
+ * Get next credential for current iteration (round-robin cycling).
+ * @param {Array} vuCredentials - Credentials assigned to this VU
+ * @param {number} iterationIndex - Current iteration number (0-indexed)
+ * @returns {Object} Next credential {username, password}
+ */
+export function getNextCredential(vuCredentials, iterationIndex) {
+  if (!vuCredentials || vuCredentials.length === 0) {
+    throw new Error('No credentials available for VU');
+  }
+  const index = iterationIndex % vuCredentials.length;
+  return vuCredentials[index];
+}
+
+/**
+ * Log credential usage for debugging (only in debug mode).
+ * @param {Object} credential - The credential being used
+ * @param {number} iterationIndex - Current iteration
+ */
+export function logCredentialUsage(credential, iterationIndex) {
+  if (ENV.DEBUG_MODE) {
+    console.log(`[VU ${__VU}, Iter ${iterationIndex}] Using credential: ${credential.username}`);
+  }
+}
+
+/**
+ * Format credentials as JSON payload for login request body.
+ * @param {Object} credential - {username, password}
+ * @returns {Object} Formatted request payload
+ */
+export function formatLoginPayload(credential) {
+  return {
+    username: credential.username,
+    password: credential.password,
+  };
+}
