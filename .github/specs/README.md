@@ -15,10 +15,11 @@ Specs travel through a strict human-in-the-loop state machine.
 
 > **HARD GATE RULE:** Without an `APPROVED` status in the YAML frontmatter, absolutely no generative agents are permitted to implement code into the `k6/` scaffold.
 
-## File Naming Convention
-Specs must be named strictly in lowercase kebab-case mapping the feature under test:
-- `auth-service-spike.spec.md`
-- `payment-gateway-load.spec.md`
+## How to Create a Spec
+1. Ensure the raw business challenge resides in `.github/requirements/<feature>.md`.
+2. Invoke the agent via Copilot Chat: `@Spec Generator generate spec for <feature>`.
+3. The model translates the payload into a structured `DRAFT` spec focused on endpoints, SLA thresholds, workload models, and data strategies.
+4. You evaluate the constraints, replace any `[Not provided]` placeholders accurately, and switch the status to `APPROVED`.
 
 ## Required Frontmatter
 The top of every specification must include the YAML block:
@@ -34,17 +35,24 @@ version: "1.0"
 ---
 ```
 
-## How to Create a Spec
-1. Ensure the raw business challenge resides in `.github/requirements/<feature>.md`.
-2. Invoke the agent via Copilot Chat: `@Spec Generator generate spec for <feature>`.
-3. The model translates the payload into a structured `DRAFT` spec focused on endpoints, SLA thresholds, workload models, and data strategies.
-4. You evaluate the constraints, replace any `[Not provided]` placeholders accurately, and switch status to `APPROVED`.
+## File Naming Convention
+Specs must be named strictly in lowercase kebab-case mapping the feature under test:
+- `auth-service-spike.spec.md`
+- `payment-gateway-load.spec.md`
+
+## Specifications Index
+*(Update this matrix when new specs are transitioned through the lifecycle)*
+
+| Spec ID | Feature Name | Test Scope | Status |
+|---------|--------------|------------|--------|
+| - | - | - | - |
+
+## Pending Requirements Waitlist
+*(These requirements exist in `.github/requirements/` but have not yet been evaluated into a `DRAFT` spec)*
+
+| Requirement File | Date Added | Action Required |
+|------------------|------------|-----------------|
+| - | - | Request `/generate-spec` |
 
 ## Alignment to K6 ASDD
-Specs do not define Javascript implementation semantics directly. They define:
-- Target Service Level Objectives (SLOs).
-- VU models (Ramping, Constant Arrival).
-- Duration vectors.
-- Environments.
-
-The `implement-k6-assets` and `implement-k6-script` skills map these abstract definitions strictly into runtime Javascript definitions under the `/k6` project directory.
+Specs do not define Javascript implementation semantics directly. They define Target Service Level Objectives (SLOs), VU models (Ramping, Constant Arrival), Duration vectors, and Environments. The `implement-k6-*` skills map these abstract definitions strictly into runtime Javascript definitions under the `/k6` project directory.
