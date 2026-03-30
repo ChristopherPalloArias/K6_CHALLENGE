@@ -40,6 +40,13 @@ This repository follows the **ASDD** flow: all functionality is executed across 
 | Spec Generator | Phase 1 | `.github/agents/spec-generator.agent.md` |
 | QA Agent | Phase 2 | `.github/agents/qa.agent.md` |
 | Documentation Agent | Phase 3 | `.github/agents/documentation.agent.md` |
+| Automation Flow Proposer | Phase 2 | `.github/agents/automation-flow-proposer.agent.md` |
+| Gherkin Case Generator | Phase 2 | `.github/agents/gherkin-case-generator.agent.md` |
+| Git Delivery Handoff | Phase 4 | `.github/agents/git-delivery-handoff.agent.md` |
+| Implement K6 Assets | Phase 3 | `.github/agents/implement-k6-assets.agent.md` |
+| Implement K6 Script | Phase 3 | `.github/agents/implement-k6-script.agent.md` |
+| Performance Analyzer | Phase 2 | `.github/agents/performance-analyzer.agent.md` |
+| Risk Identifier | Phase 2 | `.github/agents/risk-identifier.agent.md` |
 
 ### Path-scoped Instructions
 | Scope | Path | Applies to |

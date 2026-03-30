@@ -92,6 +92,13 @@ When the scripts are ready and verified:
 | `@Spec Generator` | Phase 1 | Validate requirement and generate tech spec |
 | `@QA Agent` | Phase 2 | Gherkin, risks, and k6 automation assets |
 | `@Documentation Agent` | Phase 3 | Update root README and docs |
+| `@Automation Flow Proposer` | Phase 2 | ROI load automation roadmap QA |
+| `@Gherkin Case Generator` | Phase 2 | Gherkin BDD behaviors for k6 execution |
+| `@Git Delivery Handoff` | Phase 4 | Delivery logic and packaging |
+| `@Implement K6 Assets` | Phase 3 | Foundational k6 configs, data, helpers |
+| `@Implement K6 Script` | Phase 3 | Executable k6 load scenarios |
+| `@Performance Analyzer` | Phase 2 | Performance CoE specialist tracking SLAs |
+| `@Risk Identifier` | Phase 2 | Systemic performance bottleneck checks |
 
 ---
 
